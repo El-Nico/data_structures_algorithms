@@ -1,5 +1,5 @@
 import "./App.css";
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useState, useRef } from "react";
 import {
   LineChart,
   Line,
@@ -9,8 +9,23 @@ import {
   Tooltip,
 } from "recharts";
 
+import "highlight.js/styles/base16/woodland.css";
+
+// import "highlight.js/styles/github.css";
+// Using ES6 import syntax
+import hljs from "highlight.js/lib/core";
+// import javascript from "highlight.js/lib/languages/javascript";
+import typescript from "highlight.js/lib/languages/typescript";
+
+// Then register the languages you need
+// hljs.registerLanguage("javascript", javascript);
+hljs.registerLanguage("typescript", typescript);
+
+// const highlightedCode = hljs.highlight("<span>Hello World!</span>", {
+//   language: "xml",
+// }).value;
+
 function App() {
-  const linearTime = function () {};
   const exponentialTime = function () {};
   const factorialTime = function () {};
   //variables & data
@@ -45,28 +60,22 @@ function App() {
     console.log("Call to find Nemo took " + (t1 - t0) + " milliseconds");
   }
 
-  //O(1) -- constant time
-  function logFirstNBoxes(boxes) {
-    console.log(boxes[0]);
-    console.log(boxes[1]);
-  }
-
-  function reducer(state, action) {
-    switch (action.type) {
-      case "ct_set_po": {
-        return { ...state, ct_performance_output: action.payload };
-      }
-    }
-  }
-  const [state, dispatch] = useReducer(reducer, {
-    ct_performance_output: 0,
-  });
+  //O(n)
+  const [ltData, setLtData] = useState([
+    {
+      operational_time: 0,
+      operational_steps: 0,
+    },
+  ]);
+  const [lt_interval_id, set_lt_interval_id] = useState(null);
+  const linearTime = function () {};
 
   const [ctData, setCtData] = useState([
-    { operational_steps: 0, deltaT: 0, n: 0, text_output: "" },
+    { operation_steps: 0, operation_time: 0, n: 0, text_output: "" },
   ]);
   const [ct_interval_id, set_ct_interval_id] = useState(0);
   // let t;
+  //O(1) -- constant time
   const constantTime = function () {
     //data
     let n = 1;
@@ -74,23 +83,23 @@ function App() {
     // let data = ["nemo1", "nemo2", "nemo3", "nemo4", "nemo5", "nemo6"];
     //every 1 second
     let t = setInterval(function () {
-      let operational_steps = 0;
+      let operation_steps = 0;
       let t0 = performance.now();
       const data = Array.from({ length: n + 10000 }, (_, i) => "nemo" + i);
-      operational_steps++;
+      operation_steps++;
       const operation = data.slice(0, n).join(",");
-      operational_steps++;
+      operation_steps++;
       let t1 = performance.now();
       // console.log(operation, t1 - t0);
-      const deltaT = t1 - t0;
-      const text_output = operation + deltaT + "ms";
+      const operation_time = t1 - t0;
+      const text_output = operation + operation_time + "ms";
       // console.log(text_output);
       setCtData((curr) => [
         ...curr,
         {
-          operational_steps,
+          operation_steps,
           n,
-          deltaT,
+          operation_time,
           text_output,
         },
       ]);
@@ -138,7 +147,6 @@ function App() {
 
   useEffect(() => {
     findNemo(large); //O(n) --> Linear Time
-    logFirstNBoxes(boxes); //O(2)--> constant time
   }, []);
 
   function mainOperationStart() {
@@ -149,50 +157,7 @@ function App() {
     factorialTime();
   }
   const data = ctData;
-  // const data = [
-  //   {
-  //     name: "Page A",
-  //     uv: 4000,
-  //     pv: 2400,
-  //     amt: 2400,
-  //   },
-  //   {
-  //     name: "Page B",
-  //     uv: 3000,
-  //     pv: 1398,
-  //     amt: 2210,
-  //   },
-  //   {
-  //     name: "Page C",
-  //     uv: 2000,
-  //     pv: 9800,
-  //     amt: 2290,
-  //   },
-  //   {
-  //     name: "Page D",
-  //     uv: 2780,
-  //     pv: 3908,
-  //     amt: 2000,
-  //   },
-  //   {
-  //     name: "Page E",
-  //     uv: 1890,
-  //     pv: 4800,
-  //     amt: 2181,
-  //   },
-  //   {
-  //     name: "Page F",
-  //     uv: 2390,
-  //     pv: 3800,
-  //     amt: 2500,
-  //   },
-  //   {
-  //     name: "Page G",
-  //     uv: 3490,
-  //     pv: 4300,
-  //     amt: 2100,
-  //   },
-  // ];
+
   const renderLineChart = (
     <LineChart
       width={400}
@@ -202,11 +167,11 @@ function App() {
     >
       <Line
         type="monotone"
-        dataKey="deltaT"
+        dataKey="operation_time"
         stroke="#8884d8"
         activeDot={{ r: 8 }}
       />
-      <Line type="monotone" dataKey="operational_steps" stroke="#82ca9d" />
+      <Line type="monotone" dataKey="operation_steps" stroke="#82ca9d" />
       <CartesianGrid stroke="#ccc" />
       <XAxis dataKey="n" />
       <YAxis />
@@ -214,28 +179,98 @@ function App() {
     </LineChart>
   );
 
+  const codeRef = useRef(null);
+  useEffect(() => {
+    hljs.highlightBlock(codeRef.current);
+  }, []);
   return (
     <div className="App">
-      <button onClick={mainOperationStart}>Start</button>
-      <button
-        onClick={() => {
-          console.log(ct_interval_id);
-          clearInterval(ct_interval_id);
-          console.log("ran");
-        }}
-      >
-        Reset
-      </button>
-      <div className="complexities-container">
-        <div className="complexity constant-time">
-          <div className="graph">{renderLineChart}</div>
-          <div className="function-snippet">function-snippet</div>
-          <div className="output">output</div>
+      <div className="menu-bar">
+        <div className="buttons">
+          <button onClick={mainOperationStart}>Start All</button>
+          <button onClick={mainOperationStart}>Pause All</button>
+          <button
+            onClick={() => {
+              console.log(ct_interval_id);
+              clearInterval(ct_interval_id);
+              console.log("ran");
+            }}
+          >
+            Reset All
+          </button>
         </div>
-        <div className="complexity linear-time"></div>
-        <div className="complexity exponential-time"></div>
-        <div className="complexity factorial-time"></div>
       </div>
+
+      <main>
+        <div className="complexities-container">
+          <div className="complexity constant-time">
+            <div className="graph">{renderLineChart}</div>
+            <div className="function-snippet">function-snippet</div>
+            <div className="output">output</div>
+          </div>
+          <div className="complexity linear-time">
+            <div className="graph">{renderLineChart}</div>
+            <div className="function-snippet">
+              <pre>
+                <code className="typescript" ref={codeRef}>
+                  {`function findNemo(array) {
+                  let t0 = performance.now();
+
+                  for (let i = 0; i < array.length; i++) {
+                    if (array[i] === "nemo");
+                    {
+                      console.log("found nemo!");
+                    }
+                  }
+
+                  let t1 = performance.now();
+                  console.log(
+                    "Call to find Nemo took " + (t1 - t0) + " milliseconds"
+                  );
+                }`}
+                  {`
+export function useWeb3AnalyticsReporter() {
+  const { pathname, search } = useLocation(); //depends on project routes manager 
+  const { provider } = useWeb3React(); //depends on project web3 providers handling
+
+  //track page-views
+  useEffect(() => {
+    Web3Analytics.trackPageView(pathname, search);
+  }, [pathname, search]);
+
+  //track web3 activity
+  useEffect(() => {
+    if (provider) {
+      Web3Analytics.walletProvider(provider);
+    }
+  }, [provider]);
+}`}
+                </code>
+              </pre>
+            </div>
+            <div className="output">output</div>
+            <div className="control-bar">
+              <div className="buttons">
+                <button>start</button>
+                <button>pause</button>
+                <button>reset</button>
+              </div>
+            </div>
+          </div>
+          <div className="complexity exponential-time"></div>
+          <div className="complexity factorial-time"></div>
+        </div>
+      </main>
+      <footer>
+        {" "}
+        <p>
+          copyright &copy; 2023{" "}
+          <a href="https://nicholas-eruba.com/home" target="_blank">
+            Nicholas Chibuike-Eruba
+          </a>
+          &nbsp; All rights reserved
+        </p>
+      </footer>
     </div>
   );
 }

@@ -1,0 +1,45 @@
+/* #E28B8B horrible
+#ECC958 bad
+#FBFF49 fair
+#CEEE40 good
+#83D234 excellent */
+
+.App {
+  /* display: grid; */
+  /* grid-template-rows: 10vh 80vh 10vh; */
+}
+
+.menu-bar {
+  display: grid;
+  place-content: center;
+}
+
+.exponential-time,
+.factorial-time {
+  background: #e28b8b;
+}
+
+.linear-time {
+  background: #fbff49;
+}
+
+.constant-time {
+  background: #83d234;
+}
+
+.complexities-container {
+  display: grid;
+  place-content: center;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(379px, 400px));
+  grid-auto-rows: minmax(100px, 400px);
+  /* grid-auto-columns: minmax(100px, 400px); */
+}
+
+.complexity {
+  max-width: 400px;
+}
+
+.buttons {
+  display: flex;
+}
