@@ -1,5 +1,6 @@
 {
   "name": "01_big_o",
+  "homepage": ".",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
