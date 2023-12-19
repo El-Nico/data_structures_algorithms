@@ -1,0 +1,34 @@
+a hash function genenerate an output of fixed length from a given input
+ex hello=> 5dhudsjfldsjfahkldfsa ffdas md5 hash
+
+I.e you put in a key and it generates a random memory space using the hash funciton
+therefore refenrince that key produces and o1 speed because its 1-1 no looping, problem
+is collisons below
+
+its 1 way, ie cannot determine input from output
+
+md5 is not cryptographically secure
+
+pros/cons of hash tables
+pro all operations are generally 0(1) with exception below
+
+con 1  with enugh data and limited memories, collision in used addressed spaces cant be avoided
+therefore resulting in forming linked lists going from 0(1)->0(n/k) where k is number of
+items in hashtable
+ rmoving constants
+get 0(n)
+
+con 2 keys() --O.n because the hash array may be sparse but you still have to go throuhg
+it 1 by 1 in order to retrieve the key
+
+
+///in js hash functions are objects ,,,keyvalue paisrs
+
+objs,maps,sets all versions of hashtables
+maps maintain insertion order
+
+putting _ before _hash() basically means private function in js
+optimised keys-method without collision available
+
+hash tabkes vs arrats
+a hash table is basically a flexible keyed array, usually has no order
